@@ -3,197 +3,218 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jiostar — State of the Art Experience</title>
+<title>Jiostar Immersive Environment</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Inter', sans-serif; background:#000; color:white; overflow-x:hidden; }
-
-video.hero {
- position:fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
- object-fit:cover;
- z-index:-2;
-}
-
-.overlay-dark {
- position:fixed;
- width:100%;
- height:100%;
- background:rgba(0,0,0,0.55);
- z-index:-1;
-}
+body { margin:0; overflow-x:hidden; font-family:'Inter',sans-serif; background:#000; color:white; }
+canvas { display:block; }
 
 nav {
  position:fixed;
  top:0;
  width:100%;
- padding:20px 40px;
+ padding:20px 50px;
  display:flex;
  justify-content:space-between;
  align-items:center;
  backdrop-filter:blur(10px);
  background:rgba(0,0,0,0.4);
- z-index:100;
+ z-index:10;
 }
 
-nav img {
- height:40px;
-}
+nav img { height:40px; }
 
-nav ul {
- display:flex;
- list-style:none;
- gap:30px;
-}
+nav ul { display:flex; gap:30px; list-style:none; }
+nav ul li { cursor:pointer; font-weight:500; }
 
-nav ul li {
- cursor:pointer;
- font-weight:500;
-}
-
-section {
- min-height:100vh;
- padding:120px 10%;
- display:flex;
- flex-direction:column;
- justify-content:center;
-}
-
-.hero-content {
+.overlay-section {
+ position:fixed;
+ width:100%;
+ top:50%;
+ transform:translateY(-50%);
  text-align:center;
+ pointer-events:none;
+ transition:opacity 0.6s ease;
 }
 
-.hero-content h1 {
+.overlay-section h1 {
  font-size:4vw;
  font-weight:700;
 }
 
-.hero-content p {
+.overlay-section p {
  margin-top:20px;
- font-size:1.3vw;
- opacity:0.8;
+ opacity:0.7;
 }
 
-.glass-card {
- background:rgba(255,255,255,0.05);
- backdrop-filter:blur(12px);
- padding:40px;
- border-radius:20px;
- margin-top:40px;
-}
-
-.metrics {
- display:flex;
- justify-content:space-around;
- margin-top:40px;
- flex-wrap:wrap;
- gap:40px;
-}
-
-.metric-box {
+.metric {
+ position:fixed;
+ bottom:10%;
+ width:100%;
  text-align:center;
+ font-size:2vw;
+ opacity:0;
+ transition:opacity 0.6s ease;
 }
 
-.metric-box h2 {
- font-size:3vw;
- color:#ff9900;
-}
-
-footer {
- padding:60px;
- text-align:center;
- background:#050505;
-}
 </style>
 </head>
 <body>
 
-<video class="hero" autoplay muted loop playsinline>
- <source src="hero.mp4" type="video/mp4">
-</video>
-
-<div class="overlay-dark"></div>
-
 <nav>
- <img src="https://www.jiostar.com/assets/images/logo.svg">
- <ul>
-  <li>About</li>
-  <li>Story Engine</li>
-  <li>Distribution</li>
-  <li>Brand Lab</li>
-  <li>Vision</li>
- </ul>
+<img src="https://www.jiostar.com/assets/images/logo.svg">
+<ul>
+<li>About</li>
+<li>Story Engine</li>
+<li>Distribution</li>
+<li>Brand Lab</li>
+<li>Vision</li>
+</ul>
 </nav>
 
-<section>
- <div class="hero-content">
-  <h1>India’s Biggest Storytellers</h1>
-  <p>Entertainment • Cricket • Culture</p>
- </div>
-</section>
+<div class="overlay-section" id="overlay">
+<h1>India’s Biggest Storytellers</h1>
+<p>Entertainment • Cricket • Culture</p>
+</div>
 
-<section style="background:#050507;">
- <h1>About Jiostar</h1>
- <div class="glass-card">
-  Jiostar is redefining the storytelling landscape across entertainment, sports and culture — creating immersive narratives that reach millions across platforms.
- </div>
-</section>
+<div class="metric" id="metric">
+120M+ Monthly Reach
+</div>
 
-<section>
- <h1>The Story Engine</h1>
- <div class="glass-card">
-  Entertainment. Cricket. Culture. Three pillars. Infinite narratives.
- </div>
-</section>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
 
-<section style="background:#050507;">
- <h1>Distribution Footprint</h1>
- <div class="metrics">
-  <div class="metric-box">
-   <h2>120M+</h2>
-   Monthly Reach
-  </div>
-  <div class="metric-box">
-   <h2>4.8%</h2>
-   Engagement
-  </div>
-  <div class="metric-box">
-   <h2>7m</h2>
-   Avg Watch
-  </div>
- </div>
-</section>
+<script>
+let scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x000000, 50, 200);
 
-<section>
- <h1>Brand Lab</h1>
- <div class="glass-card">
-  Build immersive storytelling pilots tailored for audience and impact.
- </div>
-</section>
+let camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.z = 60;
 
-<section style="background:#050507;">
- <h1>Formats & Originals</h1>
- <div class="glass-card">
-  Live events. Cultural originals. Sports storytelling. Platform-native formats.
- </div>
-</section>
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
 
-<section>
- <h1>Leadership Vision</h1>
- <div class="glass-card">
-  Jiostar envisions a future where storytelling transcends screens and becomes an ecosystem of influence.
- </div>
-</section>
+// Lights
+let ambient = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambient);
 
-<footer>
- © 2026 Jiostar — State of the Art Experience Prototype
-</footer>
+let point = new THREE.PointLight(0xff9900, 2);
+point.position.set(20,20,20);
+scene.add(point);
+
+// Video Texture
+let video = document.createElement('video');
+video.src = "hero.mp4";
+video.loop = true;
+video.muted = true;
+video.play();
+
+let videoTexture = new THREE.VideoTexture(video);
+let videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+let videoGeometry = new THREE.PlaneGeometry(120, 70);
+let videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
+videoMesh.position.z = -100;
+scene.add(videoMesh);
+
+// Particle Field
+let particlesGeometry = new THREE.BufferGeometry();
+let count = 5000;
+let positions = new Float32Array(count * 3);
+
+for(let i=0;i<count*3;i++){
+ positions[i] = (Math.random()-0.5)*400;
+}
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+let particlesMaterial = new THREE.PointsMaterial({
+ color:0xff9900,
+ size:0.6,
+ transparent:true,
+ opacity:0.8
+});
+let particles = new THREE.Points(particlesGeometry, particlesMaterial);
+scene.add(particles);
+
+// 3D Panels
+function createPanel(text,zPos){
+ let geometry = new THREE.BoxGeometry(20,10,2);
+ let material = new THREE.MeshPhysicalMaterial({
+  color:0x111111,
+  metalness:0.5,
+  roughness:0.2,
+  transmission:0.8,
+  transparent:true,
+  opacity:0.9
+ });
+ let mesh = new THREE.Mesh(geometry, material);
+ mesh.position.z = zPos;
+ scene.add(mesh);
+
+ let canvas = document.createElement("canvas");
+ canvas.width = 1024;
+ canvas.height = 512;
+ let ctx = canvas.getContext("2d");
+ ctx.fillStyle="#000";
+ ctx.fillRect(0,0,1024,512);
+ ctx.fillStyle="#ff9900";
+ ctx.font="bold 100px Inter";
+ ctx.textAlign="center";
+ ctx.fillText(text,512,280);
+
+ let texture = new THREE.CanvasTexture(canvas);
+ material.map = texture;
+}
+
+createPanel("Entertainment",-30);
+createPanel("Cricket",-60);
+createPanel("Culture",-90);
+
+// Scroll Adaptive Camera
+window.addEventListener("scroll",()=>{
+ let scrollY = window.scrollY;
+ camera.position.z = 60 - scrollY * 0.08;
+
+ if(scrollY > 200){
+   document.getElementById("overlay").style.opacity=0;
+ }
+
+ if(scrollY > 600){
+   document.getElementById("metric").style.opacity=1;
+ }
+});
+
+// Mouse Interaction
+document.addEventListener("mousemove",(e)=>{
+ let x = (e.clientX/window.innerWidth - 0.5)*2;
+ let y = (e.clientY/window.innerHeight - 0.5)*2;
+ gsap.to(camera.rotation,{
+   y:x*0.2,
+   x:-y*0.1,
+   duration:1
+ });
+});
+
+// Animate
+function animate(){
+ requestAnimationFrame(animate);
+ particles.rotation.y += 0.0008;
+ renderer.render(scene,camera);
+}
+animate();
+
+// Extend page height
+document.body.style.height="400vh";
+
+window.addEventListener("resize",()=>{
+ renderer.setSize(window.innerWidth, window.innerHeight);
+ camera.aspect=window.innerWidth/window.innerHeight;
+ camera.updateProjectionMatrix();
+});
+</script>
 
 </body>
 </html>
