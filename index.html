@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jiostar Immersive Experience</title>
+<title>Jiostar – Immersive Brand Experience</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 body{
  margin:0;
+ font-family:'Inter',sans-serif;
  background:#050507;
  color:white;
- font-family:'Inter',sans-serif;
  overflow-x:hidden;
 }
 
@@ -25,66 +25,78 @@ nav{
  padding:20px 40px;
  display:flex;
  justify-content:space-between;
+ align-items:center;
  backdrop-filter:blur(10px);
  background:rgba(0,0,0,0.35);
  z-index:20;
 }
 
+nav a{
+ color:white;
+ text-decoration:none;
+ margin-left:20px;
+ font-size:14px;
+}
+
 .logo-text{
  font-weight:800;
- font-size:18px;
  letter-spacing:1px;
 }
 
-.overlay-title{
+.overlay-hero{
  position:fixed;
  top:50%;
  width:100%;
- text-align:center;
  transform:translateY(-50%);
- transition:opacity 0.5s ease;
+ text-align:center;
  pointer-events:none;
+ transition:opacity 0.6s ease;
 }
 
-.overlay-title h1{
+.overlay-hero h1{
  font-size:4vw;
  margin:0;
 }
 
-.info-panel{
+.section-overlay{
  position:fixed;
- bottom:-100%;
- left:0;
- width:100%;
- height:60%;
- background:rgba(0,0,0,0.92);
+ right:40px;
+ top:120px;
+ width:320px;
+ background:rgba(0,0,0,0.75);
  backdrop-filter:blur(20px);
- padding:50px;
+ padding:25px;
  box-sizing:border-box;
- transition:bottom 0.5s ease;
+ border:1px solid rgba(255,255,255,0.05);
+ display:none;
  z-index:30;
 }
 
-.info-panel.active{
- bottom:0;
+.section-overlay.active{
+ display:block;
+}
+
+.section-overlay h2{
+ margin-top:0;
 }
 
 .close-btn{
  position:absolute;
- top:20px;
- right:30px;
+ top:10px;
+ right:15px;
  cursor:pointer;
+ font-size:12px;
 }
 
-.fallback{
- position:fixed;
- top:50%;
- left:50%;
- transform:translate(-50%,-50%);
+footer{
+ position:relative;
+ padding:80px 40px;
  text-align:center;
+ background:#0a0a0f;
+ margin-top:200vh;
 }
 
-body{height:400vh;}
+body{height:500vh;}
 </style>
 </head>
 
@@ -92,44 +104,48 @@ body{height:400vh;}
 
 <nav>
 <div class="logo-text">JIOSTAR</div>
+<div>
+<a href="#">About</a>
+<a href="#">Story Engine</a>
+<a href="#">Distribution</a>
+<a href="#">Contact</a>
+</div>
 </nav>
 
-<div class="overlay-title" id="heroTitle">
+<div class="overlay-hero" id="heroTitle">
 <h1>India’s Biggest Storytellers</h1>
+<p>Entertainment • Sports • Culture</p>
 </div>
 
-<div class="info-panel" id="infoPanel">
+<div class="section-overlay" id="infoPanel">
 <div class="close-btn" onclick="closePanel()">Close ✕</div>
 <h2 id="panelTitle"></h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<p id="panelContent"></p>
 </div>
 
-<div id="fallback" class="fallback" style="display:none;">
-<p>Your device does not support WebGL.</p>
-</div>
+<footer>
+<p>© 2026 Jiostar. Immersive Brand Prototype.</p>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
 <script>
 
 (function(){
 
 if(!window.WebGLRenderingContext){
- document.getElementById("fallback").style.display="block";
+ alert("WebGL not supported on this device.");
  return;
 }
 
 const PINK = 0xff007f;
 
+/* Scene */
 let scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x050507,40,150);
+scene.fog = new THREE.Fog(0x050507,40,160);
 
-let camera = new THREE.PerspectiveCamera(
- 60,
- window.innerWidth/window.innerHeight,
- 0.1,
- 1000
-);
-camera.position.z = 70;
+let camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.z = 80;
 
 let renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
@@ -138,44 +154,49 @@ document.body.appendChild(renderer.domElement);
 
 /* Lighting */
 scene.add(new THREE.AmbientLight(0xffffff,0.5));
-let light = new THREE.PointLight(PINK,1.8);
-light.position.set(20,20,20);
+let light = new THREE.PointLight(PINK,1.5);
+light.position.set(30,30,30);
 scene.add(light);
 
 /* Particles */
-const particleCount = 800;
-let particleGeo = new THREE.BufferGeometry();
+const particleCount = 700;
+let geo = new THREE.BufferGeometry();
 let positions = new Float32Array(particleCount*3);
 let radii = new Float32Array(particleCount);
 
 for(let i=0;i<particleCount;i++){
  let angle=Math.random()*Math.PI*2;
- let radius=40+Math.random()*25;
- let height=(Math.random()-0.5)*50;
+ let radius=40+Math.random()*30;
+ let height=(Math.random()-0.5)*60;
  positions[i*3]=Math.cos(angle)*radius;
  positions[i*3+1]=height;
  positions[i*3+2]=Math.sin(angle)*radius;
  radii[i]=radius;
 }
+geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
 
-particleGeo.setAttribute("position",new THREE.BufferAttribute(positions,3));
-
-let particleMat = new THREE.PointsMaterial({
+let mat = new THREE.PointsMaterial({
  color:PINK,
- size:1.4,
+ size:1.5,
  transparent:true,
  opacity:0.85,
  depthWrite:false
 });
 
-let particles = new THREE.Points(particleGeo,particleMat);
+let particles = new THREE.Points(geo,mat);
 scene.add(particles);
 
 /* Panels */
 let panels=[];
-function createPanel(text,x,z){
- let geo=new THREE.BoxGeometry(18,9,1);
- let mat=new THREE.MeshPhysicalMaterial({
+const panelData = [
+ {title:"Entertainment",content:"Jiostar delivers premium entertainment narratives across formats, genres and platforms, shaping cultural conversation at scale."},
+ {title:"Sports",content:"From marquee cricket properties to live sporting moments, Jiostar connects millions through high-impact sports storytelling."},
+ {title:"Culture",content:"Jiostar builds culturally resonant formats that reflect India’s evolving identity across language, region and audience segments."}
+];
+
+function createPanel(data,x,z){
+ let box=new THREE.BoxGeometry(20,10,1);
+ let material=new THREE.MeshPhysicalMaterial({
   color:0x111111,
   metalness:0.6,
   roughness:0.15,
@@ -184,9 +205,9 @@ function createPanel(text,x,z){
   opacity:0.95
  });
 
- let mesh=new THREE.Mesh(geo,mat);
+ let mesh=new THREE.Mesh(box,material);
  mesh.position.set(x,0,z);
- mesh.userData.title=text;
+ mesh.userData=data;
  scene.add(mesh);
 
  let canvas=document.createElement("canvas");
@@ -198,16 +219,16 @@ function createPanel(text,x,z){
  ctx.fillStyle="#ff007f";
  ctx.font="bold 80px Inter";
  ctx.textAlign="center";
- ctx.fillText(text,512,280);
+ ctx.fillText(data.title,512,280);
 
- mat.map=new THREE.CanvasTexture(canvas);
+ material.map=new THREE.CanvasTexture(canvas);
 
  panels.push(mesh);
 }
 
-createPanel("Entertainment",-22,-40);
-createPanel("Sports",0,-60);
-createPanel("Culture",22,-80);
+createPanel(panelData[0],-25,-50);
+createPanel(panelData[1],0,-70);
+createPanel(panelData[2],25,-90);
 
 /* Interaction */
 let raycaster=new THREE.Raycaster();
@@ -215,7 +236,7 @@ let mouse=new THREE.Vector2();
 let hovered=null;
 let zoomed=false;
 
-function onMouseMove(e){
+window.addEventListener("mousemove",(e)=>{
  if(zoomed) return;
 
  mouse.x=(e.clientX/window.innerWidth)*2-1;
@@ -225,10 +246,8 @@ function onMouseMove(e){
  let intersects=raycaster.intersectObjects(panels);
 
  if(intersects.length>0){
-  if(hovered!==intersects[0].object){
-   hovered=intersects[0].object;
-   document.body.style.cursor="pointer";
-  }
+  hovered=intersects[0].object;
+  document.body.style.cursor="pointer";
  }else{
   hovered=null;
   document.body.style.cursor="default";
@@ -236,51 +255,47 @@ function onMouseMove(e){
 
  camera.rotation.y=mouse.x*0.12;
  camera.rotation.x=-mouse.y*0.05;
-}
+});
 
-function onClick(){
+window.addEventListener("click",()=>{
  if(!hovered||zoomed) return;
 
  zoomed=true;
  document.body.style.overflow="hidden";
 
  let target=hovered.position;
-
  camera.position.set(target.x,target.y,target.z+14);
 
  document.getElementById("panelTitle").innerText=hovered.userData.title;
+ document.getElementById("panelContent").innerText=hovered.userData.content;
  document.getElementById("infoPanel").classList.add("active");
-}
-
-window.addEventListener("mousemove",onMouseMove);
-window.addEventListener("click",onClick);
+});
 
 window.closePanel=function(){
  zoomed=false;
  document.body.style.overflow="auto";
  document.getElementById("infoPanel").classList.remove("active");
- camera.position.set(0,0,70);
+ camera.position.set(0,0,80);
 };
 
 /* Scroll */
-let targetZ=70;
+let targetZ=80;
 window.addEventListener("scroll",()=>{
  if(!zoomed){
-  targetZ=70-window.scrollY*0.05;
+  targetZ=80-window.scrollY*0.05;
  }
 });
 
-/* Animation Loop */
+/* Animate */
 function animate(){
  requestAnimationFrame(animate);
 
  if(!zoomed){
-  camera.position.z+= (targetZ-camera.position.z)*0.08;
+  camera.position.z+=(targetZ-camera.position.z)*0.08;
  }
 
  let pos=particles.geometry.attributes.position.array;
  let time=performance.now()*0.00012;
-
  for(let i=0;i<particleCount;i++){
   let angle=time+i;
   pos[i*3]=Math.cos(angle*0.2)*radii[i];
@@ -293,14 +308,10 @@ function animate(){
 animate();
 
 /* Resize */
-let resizeTimeout;
 window.addEventListener("resize",()=>{
- clearTimeout(resizeTimeout);
- resizeTimeout=setTimeout(()=>{
-  renderer.setSize(window.innerWidth,window.innerHeight);
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
- },150);
+ renderer.setSize(window.innerWidth,window.innerHeight);
+ camera.aspect=window.innerWidth/window.innerHeight;
+ camera.updateProjectionMatrix();
 });
 
 })();
